@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer & To-do List</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Pomodoro Timer & To-do List</h1>
+        <div class="timer">
+            <div class="timer-display">25:00</div>
+            <div class="timer-controls">
+                <button id="start-btn">Start</button>
+                <button id="pause-btn">Pause</button>
+                <button id="reset-btn">Reset</button>
+            </div>
+        </div>
+        <div class="settings">
+            <label for="work-duration">Work (minutes):</label>
+            <input type="number" id="work-duration" value="25" min="1">
+            <label for="break-duration">Break (minutes):</label>
+            <input type="number" id="break-duration" value="5" min="1">
+        </div>
+        <div class="todo">
+            <h2>To-do List</h2>
+            <div class="todo-input">
+                <input type="text" id="todo-input" placeholder="Add a new task...">
+                <button id="add-todo-btn">Add</button>
+            </div>
+            <ul id="todo-list"></ul>
+        </div>
+        <div class="stats">
+            <h2>Statistics</h2>
+            <p>Completed Pomodoros: <span id="completed-pomodoros">0</span></p>
+            <p>Remaining Tasks: <span id="remaining-tasks">0</span></p>
+        </div>
+    </div>
+    <div class="popup" id="popup">
+        <div class="popup-content">
+            <h2 id="popup-title"></h2>
+            <p id="popup-message"></p>
+            <button id="popup-close-btn">Close</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
