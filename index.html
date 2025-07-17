@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pomodoro Timer & To-do List</title>
+    <title>Pomodoro Timer</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="light-theme">
     <div class="container">
         <div class="header">
-            <h1>Pomodoro Timer & To-do List</h1>
+            <h1>Pomodoro Timer</h1>
             <div class="theme-switcher">
                 <label class="switch">
                     <input type="checkbox" id="theme-toggle">
@@ -21,7 +21,6 @@
             <div class="timer-display">25:00</div>
             <div class="timer-controls">
                 <button id="toggle-btn">Start</button>
-                <button id="reset-btn">Reset</button>
                 <button id="skip-btn">Skip</button>
             </div>
         </div>
@@ -49,15 +48,13 @@
         <div class="popup-content">
             <h2 id="popup-title"></h2>
             <p id="popup-message"></p>
-            <button id="popup-close-btn">Close</button>
         </div>
     </div>
 
     <!-- Audio elements for sound effects -->
-    <!-- Please replace '#' with the actual path to your audio files -->
-    <audio id="tick-sound" src="#"></audio>
-    <audio id="click-sound" src="#"></audio>
-    <audio id="notification-sound" src="#"></audio>
+    <audio id="tick-sound" src="ticking-1.mp3"></audio>
+    <audio id="click-sound" src="button-click-1.mp3"></audio>
+    <audio id="notification-sound" src="button-click-1.mp3"></audio>
 
     <script src="script.js"></script>
 </body>

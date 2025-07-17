@@ -9,7 +9,6 @@ let timeRemaining = workDuration;
 // DOM elements
 const timerDisplay = document.querySelector('.timer-display');
 const toggleBtn = document.getElementById('toggle-btn');
-const resetBtn = document.getElementById('reset-btn');
 const skipBtn = document.getElementById('skip-btn');
 const workDurationInput = document.getElementById('work-duration');
 const breakDurationInput = document.getElementById('break-duration');
@@ -21,7 +20,6 @@ const remainingTasksSpan = document.getElementById('remaining-tasks');
 const popup = document.getElementById('popup');
 const popupTitle = document.getElementById('popup-title');
 const popupMessage = document.getElementById('popup-message');
-const popupCloseBtn = document.getElementById('popup-close-btn');
 const themeToggle = document.getElementById('theme-toggle');
 
 // Audio elements
@@ -31,7 +29,6 @@ const notificationSound = document.getElementById('notification-sound');
 
 // --- Sound Functions ---
 function playClickSound() {
-    // To use this, you must provide a path to your audio file in index.html
     if (clickSound.src && clickSound.src !== window.location.href) {
         clickSound.currentTime = 0;
         clickSound.play().catch(e => console.error("Error playing click sound:", e));
@@ -39,7 +36,6 @@ function playClickSound() {
 }
 
 function playTickSound() {
-    // To use this, you must provide a path to your audio file in index.html
     if (tickSound.src && tickSound.src !== window.location.href) {
         tickSound.currentTime = 0;
         tickSound.play().catch(e => console.error("Error playing tick sound:", e));
@@ -47,7 +43,6 @@ function playTickSound() {
 }
 
 function playNotificationSound() {
-    // To use this, you must provide a path to your audio file in index.html
     if (notificationSound.src && notificationSound.src !== window.location.href) {
         notificationSound.currentTime = 0;
         notificationSound.play().catch(e => console.error("Error playing notification sound:", e));
@@ -56,6 +51,27 @@ function playNotificationSound() {
 
 
 // --- Timer Functions ---
+
+function startTimer() {
+    isRunning = true;
+    toggleBtn.textContent = 'Pause';
+    timer = setInterval(() => {
+        timeRemaining--;
+        playTickSound();
+        updateTimerDisplay();
+        if (timeRemaining <= 0) {
+            clearInterval(timer);
+            isRunning = false;
+            handleSessionEnd();
+        }
+    }, 1000);
+}
+
+function pauseTimer() {
+    clearInterval(timer);
+    isRunning = false;
+    toggleBtn.textContent = 'Start';
+}
 
 // Update timer display
 function updateTimerDisplay() {
@@ -68,33 +84,15 @@ function updateTimerDisplay() {
 function toggleTimer() {
     playClickSound();
     if (isRunning) {
-        // Pause timer
-        clearInterval(timer);
-        isRunning = false;
-        toggleBtn.textContent = 'Start';
+        pauseTimer();
     } else {
-        // Start timer
-        isRunning = true;
-        toggleBtn.textContent = 'Pause';
-        timer = setInterval(() => {
-            timeRemaining--;
-            playTickSound();
-            updateTimerDisplay();
-            if (timeRemaining <= 0) {
-                clearInterval(timer);
-                isRunning = false;
-                handleSessionEnd();
-            }
-        }, 1000);
+        startTimer();
     }
 }
 
-// Reset timer
+// Reset timer (used by settings)
 function resetTimer() {
-    playClickSound();
-    clearInterval(timer);
-    isRunning = false;
-    toggleBtn.textContent = 'Start';
+    pauseTimer();
     isWorkSession = true;
     timeRemaining = workDuration;
     updateTimerDisplay();
@@ -103,9 +101,7 @@ function resetTimer() {
 // Skip to the next session
 function skipSession() {
     playClickSound();
-    clearInterval(timer);
-    isRunning = false;
-    toggleBtn.textContent = 'Start';
+    pauseTimer();
     handleSessionEnd(true); // Pass true to indicate a skip
 }
 
@@ -130,21 +126,19 @@ function handleSessionEnd(skipped = false) {
         timeRemaining = workDuration;
     }
     updateTimerDisplay();
+    setTimeout(startTimer, 1000); // Automatically start the next session after a short delay
 }
 
 // --- UI Functions ---
 
-// Show popup
+// Show popup notification
 function showPopup(title, message) {
     popupTitle.textContent = title;
     popupMessage.textContent = message;
-    popup.style.display = 'flex';
-}
-
-// Close popup
-function closePopup() {
-    playClickSound();
-    popup.style.display = 'none';
+    popup.classList.add('show');
+    setTimeout(() => {
+        popup.classList.remove('show');
+    }, 4000); // Hide after 4 seconds
 }
 
 // Add to-do item
@@ -193,11 +187,9 @@ function toggleTheme() {
 
 // --- Event Listeners ---
 toggleBtn.addEventListener('click', toggleTimer);
-resetBtn.addEventListener('click', resetTimer);
 skipBtn.addEventListener('click', skipSession);
 addTodoBtn.addEventListener('click', addTodo);
 todoList.addEventListener('click', handleTodoListClick);
-popupCloseBtn.addEventListener('click', closePopup);
 themeToggle.addEventListener('change', toggleTheme);
 
 workDurationInput.addEventListener('change', () => {
@@ -210,7 +202,6 @@ workDurationInput.addEventListener('change', () => {
 breakDurationInput.addEventListener('change', () => {
     breakDuration = breakDurationInput.value * 60;
     if (!isWorkSession) {
-        // If we are in a break, and break time is changed, reset to a new work session
         resetTimer();
     }
 });
