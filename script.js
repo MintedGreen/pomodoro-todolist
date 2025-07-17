@@ -42,6 +42,10 @@ function playTickSound() {
     }
 }
 
+function stopTickSound() {
+    tickSound.pause();
+}
+
 function playNotificationSound() {
     if (notificationSound.src && notificationSound.src !== window.location.href) {
         notificationSound.currentTime = 0;
@@ -57,7 +61,9 @@ function startTimer() {
     toggleBtn.textContent = 'Pause';
     timer = setInterval(() => {
         timeRemaining--;
-        playTickSound();
+        if (isWorkSession) {
+            playTickSound();
+        }
         updateTimerDisplay();
         if (timeRemaining <= 0) {
             clearInterval(timer);
@@ -68,6 +74,7 @@ function startTimer() {
 }
 
 function pauseTimer() {
+    stopTickSound();
     clearInterval(timer);
     isRunning = false;
     toggleBtn.textContent = 'Start';
@@ -108,6 +115,7 @@ function skipSession() {
 
 // Handle session end
 function handleSessionEnd(skipped = false) {
+    stopTickSound();
     playNotificationSound();
     if (isWorkSession) {
         // Work session ends
@@ -126,7 +134,10 @@ function handleSessionEnd(skipped = false) {
         timeRemaining = workDuration;
     }
     updateTimerDisplay();
-    setTimeout(startTimer, 1000); // Automatically start the next session after a short delay
+    setTimeout(() => {
+        if (isRunning) return; // Don't auto-start if user paused during notification
+        startTimer();
+    }, 3000); // Automatically start the next session after a short delay
 }
 
 // --- UI Functions ---
@@ -138,7 +149,7 @@ function showPopup(title, message) {
     popup.classList.add('show');
     setTimeout(() => {
         popup.classList.remove('show');
-    }, 4000); // Hide after 4 seconds
+    }, 2500); // Hide after 2.5 seconds
 }
 
 // Add to-do item
@@ -155,6 +166,7 @@ function addTodo() {
         todoList.appendChild(li);
         todoInput.value = '';
         updateStats();
+        saveTodos();
     }
 }
 
@@ -163,12 +175,12 @@ function handleTodoListClick(e) {
     if (e.target.matches('.delete-btn')) {
         playClickSound();
         e.target.parentElement.remove();
-        updateStats();
     } else if (e.target.matches('input[type="checkbox"]')) {
         playClickSound();
         e.target.parentElement.classList.toggle('completed');
-        updateStats();
     }
+    updateStats();
+    saveTodos();
 }
 
 // Update statistics
@@ -182,8 +194,60 @@ function toggleTheme() {
     playClickSound();
     document.body.classList.toggle('dark-theme');
     document.body.classList.toggle('light-theme');
+    saveSettings();
 }
 
+// --- Persistence Functions ---
+
+function saveSettings() {
+    localStorage.setItem('pomodoroSettings', JSON.stringify({
+        work: workDurationInput.value,
+        break: breakDurationInput.value,
+        theme: document.body.className
+    }));
+}
+
+function loadSettings() {
+    const settings = JSON.parse(localStorage.getItem('pomodoroSettings'));
+    if (settings) {
+        workDurationInput.value = settings.work;
+        breakDurationInput.value = settings.break;
+        document.body.className = settings.theme || 'light-theme';
+        themeToggle.checked = document.body.classList.contains('dark-theme');
+
+        workDuration = workDurationInput.value * 60;
+        breakDuration = breakDurationInput.value * 60;
+    }
+}
+
+function saveTodos() {
+    const todos = [];
+    todoList.querySelectorAll('li').forEach(li => {
+        todos.push({
+            text: li.querySelector('span').textContent,
+            completed: li.classList.contains('completed')
+        });
+    });
+    localStorage.setItem('pomodoroTodos', JSON.stringify(todos));
+}
+
+function loadTodos() {
+    const todos = JSON.parse(localStorage.getItem('pomodoroTodos'));
+    if (todos) {
+        todos.forEach(todo => {
+            const li = document.createElement('li');
+            if (todo.completed) {
+                li.classList.add('completed');
+            }
+            li.innerHTML = `
+                <input type="checkbox" ${todo.completed ? 'checked' : ''}>
+                <span>${todo.text}</span>
+                <button class="delete-btn">Delete</button>
+            `;
+            todoList.appendChild(li);
+        });
+    }
+}
 
 // --- Event Listeners ---
 toggleBtn.addEventListener('click', toggleTimer);
@@ -197,6 +261,7 @@ workDurationInput.addEventListener('change', () => {
     if (isWorkSession) {
         resetTimer();
     }
+    saveSettings();
 });
 
 breakDurationInput.addEventListener('change', () => {
@@ -204,8 +269,11 @@ breakDurationInput.addEventListener('change', () => {
     if (!isWorkSession) {
         resetTimer();
     }
+    saveSettings();
 });
 
 // --- Initial Setup ---
-updateTimerDisplay();
+loadSettings();
+loadTodos();
+resetTimer();
 updateStats();
