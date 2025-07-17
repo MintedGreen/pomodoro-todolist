@@ -2,6 +2,8 @@
 
 A simple, modern, and responsive Pomodoro Timer and To-do List website built with HTML, CSS, and JavaScript.
 
+**[Live Demo](https://mintedgreen.github.io/pomodoro-todolist/)**
+
 ## Features
 
 *   **Pomodoro Timer:** A customizable timer for work and break sessions.
