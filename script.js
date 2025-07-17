@@ -8,9 +8,9 @@ let timeRemaining = workDuration;
 
 // DOM elements
 const timerDisplay = document.querySelector('.timer-display');
-const startBtn = document.getElementById('start-btn');
-const pauseBtn = document.getElementById('pause-btn');
+const toggleBtn = document.getElementById('toggle-btn');
 const resetBtn = document.getElementById('reset-btn');
+const skipBtn = document.getElementById('skip-btn');
 const workDurationInput = document.getElementById('work-duration');
 const breakDurationInput = document.getElementById('break-duration');
 const todoInput = document.getElementById('todo-input');
@@ -22,6 +22,40 @@ const popup = document.getElementById('popup');
 const popupTitle = document.getElementById('popup-title');
 const popupMessage = document.getElementById('popup-message');
 const popupCloseBtn = document.getElementById('popup-close-btn');
+const themeToggle = document.getElementById('theme-toggle');
+
+// Audio elements
+const tickSound = document.getElementById('tick-sound');
+const clickSound = document.getElementById('click-sound');
+const notificationSound = document.getElementById('notification-sound');
+
+// --- Sound Functions ---
+function playClickSound() {
+    // To use this, you must provide a path to your audio file in index.html
+    if (clickSound.src && clickSound.src !== window.location.href) {
+        clickSound.currentTime = 0;
+        clickSound.play().catch(e => console.error("Error playing click sound:", e));
+    }
+}
+
+function playTickSound() {
+    // To use this, you must provide a path to your audio file in index.html
+    if (tickSound.src && tickSound.src !== window.location.href) {
+        tickSound.currentTime = 0;
+        tickSound.play().catch(e => console.error("Error playing tick sound:", e));
+    }
+}
+
+function playNotificationSound() {
+    // To use this, you must provide a path to your audio file in index.html
+    if (notificationSound.src && notificationSound.src !== window.location.href) {
+        notificationSound.currentTime = 0;
+        notificationSound.play().catch(e => console.error("Error playing notification sound:", e));
+    }
+}
+
+
+// --- Timer Functions ---
 
 // Update timer display
 function updateTimerDisplay() {
@@ -30,12 +64,21 @@ function updateTimerDisplay() {
     timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
-// Start timer
-function startTimer() {
-    if (!isRunning) {
+// Toggle timer (start/pause)
+function toggleTimer() {
+    playClickSound();
+    if (isRunning) {
+        // Pause timer
+        clearInterval(timer);
+        isRunning = false;
+        toggleBtn.textContent = 'Start';
+    } else {
+        // Start timer
         isRunning = true;
+        toggleBtn.textContent = 'Pause';
         timer = setInterval(() => {
             timeRemaining--;
+            playTickSound();
             updateTimerDisplay();
             if (timeRemaining <= 0) {
                 clearInterval(timer);
@@ -46,28 +89,37 @@ function startTimer() {
     }
 }
 
-// Pause timer
-function pauseTimer() {
-    clearInterval(timer);
-    isRunning = false;
-}
-
 // Reset timer
 function resetTimer() {
+    playClickSound();
     clearInterval(timer);
     isRunning = false;
+    toggleBtn.textContent = 'Start';
     isWorkSession = true;
     timeRemaining = workDuration;
     updateTimerDisplay();
 }
 
+// Skip to the next session
+function skipSession() {
+    playClickSound();
+    clearInterval(timer);
+    isRunning = false;
+    toggleBtn.textContent = 'Start';
+    handleSessionEnd(true); // Pass true to indicate a skip
+}
+
+
 // Handle session end
-function handleSessionEnd() {
+function handleSessionEnd(skipped = false) {
+    playNotificationSound();
     if (isWorkSession) {
         // Work session ends
-        let completedPomodoros = parseInt(completedPomodorosSpan.textContent);
-        completedPomodoros++;
-        completedPomodorosSpan.textContent = completedPomodoros;
+        if (!skipped) {
+            let completedPomodoros = parseInt(completedPomodorosSpan.textContent);
+            completedPomodoros++;
+            completedPomodorosSpan.textContent = completedPomodoros;
+        }
         showPopup('Work session complete!', 'Time for a break.');
         isWorkSession = false;
         timeRemaining = breakDuration;
@@ -80,6 +132,8 @@ function handleSessionEnd() {
     updateTimerDisplay();
 }
 
+// --- UI Functions ---
+
 // Show popup
 function showPopup(title, message) {
     popupTitle.textContent = title;
@@ -89,11 +143,13 @@ function showPopup(title, message) {
 
 // Close popup
 function closePopup() {
+    playClickSound();
     popup.style.display = 'none';
 }
 
 // Add to-do item
 function addTodo() {
+    playClickSound();
     const task = todoInput.value.trim();
     if (task) {
         const li = document.createElement('li');
@@ -108,43 +164,57 @@ function addTodo() {
     }
 }
 
-// Handle to-do list clicks
+// Handle to-do list clicks (delete or complete)
 function handleTodoListClick(e) {
     if (e.target.matches('.delete-btn')) {
+        playClickSound();
         e.target.parentElement.remove();
         updateStats();
     } else if (e.target.matches('input[type="checkbox"]')) {
+        playClickSound();
         e.target.parentElement.classList.toggle('completed');
         updateStats();
     }
 }
 
-// Update stats
+// Update statistics
 function updateStats() {
     const remainingTasks = todoList.querySelectorAll('li:not(.completed)').length;
     remainingTasksSpan.textContent = remainingTasks;
 }
 
-// Event listeners
-startBtn.addEventListener('click', startTimer);
-pauseBtn.addEventListener('click', pauseTimer);
+// Toggle theme
+function toggleTheme() {
+    playClickSound();
+    document.body.classList.toggle('dark-theme');
+    document.body.classList.toggle('light-theme');
+}
+
+
+// --- Event Listeners ---
+toggleBtn.addEventListener('click', toggleTimer);
 resetBtn.addEventListener('click', resetTimer);
+skipBtn.addEventListener('click', skipSession);
 addTodoBtn.addEventListener('click', addTodo);
 todoList.addEventListener('click', handleTodoListClick);
 popupCloseBtn.addEventListener('click', closePopup);
+themeToggle.addEventListener('change', toggleTheme);
+
 workDurationInput.addEventListener('change', () => {
     workDuration = workDurationInput.value * 60;
     if (isWorkSession) {
         resetTimer();
     }
 });
+
 breakDurationInput.addEventListener('change', () => {
     breakDuration = breakDurationInput.value * 60;
     if (!isWorkSession) {
+        // If we are in a break, and break time is changed, reset to a new work session
         resetTimer();
     }
 });
 
-// Initial setup
+// --- Initial Setup ---
 updateTimerDisplay();
 updateStats();

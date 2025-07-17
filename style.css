@@ -1,27 +1,114 @@
+/* CSS Variables for theming */
+:root {
+    --bg-color: #fce4ec; /* Light Pink */
+    --container-color: #fff;
+    --text-color: #333;
+    --primary-color: #ff80ab; /* Pink */
+    --primary-hover-color: #f06292; /* Darker Pink */
+    --delete-color: #f44336;
+    --delete-hover-color: #d32f2f;
+    --border-color: #eee;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --completed-color: #aaa;
+}
+
+.dark-theme {
+    --bg-color: #212121; /* Dark Gray */
+    --container-color: #424242; /* Lighter Gray */
+    --text-color: #fff;
+    --primary-color: #ff80ab; /* Pink */
+    --primary-hover-color: #f06292; /* Darker Pink */
+    --border-color: #616161;
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --completed-color: #757575;
+}
+
 /* General styling */
 body {
     font-family: sans-serif;
-    background-color: #f0f2f5;
-    color: #333;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     margin: 0;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .container {
-    background-color: #fff;
+    background-color: var(--container-color);
     padding: 2rem;
     border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 20px var(--shadow-color);
     width: 90%;
     max-width: 600px;
+    transition: background-color 0.3s;
 }
 
-h1, h2 {
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+h1 {
     text-align: center;
-    color: #ff6347;
+    color: var(--primary-color);
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+h2 {
+    text-align: center;
+    color: var(--primary-color);
+}
+
+/* Theme switcher styling */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 28px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
 }
 
 /* Timer styling */
@@ -37,7 +124,7 @@ h1, h2 {
 }
 
 .timer-controls button {
-    background-color: #ff6347;
+    background-color: var(--primary-color);
     color: #fff;
     border: none;
     padding: 0.8rem 1.5rem;
@@ -48,7 +135,7 @@ h1, h2 {
 }
 
 .timer-controls button:hover {
-    background-color: #e5533d;
+    background-color: var(--primary-hover-color);
 }
 
 /* Settings styling */
@@ -66,8 +153,10 @@ h1, h2 {
 .settings input {
     width: 50px;
     padding: 0.5rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 5px;
+    background-color: var(--container-color);
+    color: var(--text-color);
 }
 
 /* To-do list styling */
@@ -79,12 +168,14 @@ h1, h2 {
 .todo-input input {
     flex-grow: 1;
     padding: 0.8rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 5px 0 0 5px;
+    background-color: var(--container-color);
+    color: var(--text-color);
 }
 
 .todo-input button {
-    background-color: #ff6347;
+    background-color: var(--primary-color);
     color: #fff;
     border: none;
     padding: 0.8rem 1.5rem;
@@ -94,7 +185,7 @@ h1, h2 {
 }
 
 .todo-input button:hover {
-    background-color: #e5533d;
+    background-color: var(--primary-hover-color);
 }
 
 #todo-list {
@@ -106,20 +197,22 @@ h1, h2 {
     display: flex;
     align-items: center;
     padding: 0.8rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
 }
 
 #todo-list li.completed {
     text-decoration: line-through;
-    color: #aaa;
+    color: var(--completed-color);
 }
 
 #todo-list li input[type="checkbox"] {
     margin-right: 1rem;
+    width: 18px;
+    height: 18px;
 }
 
 #todo-list li .delete-btn {
-    background-color: #dc3545;
+    background-color: var(--delete-color);
     color: #fff;
     border: none;
     padding: 0.5rem 1rem;
@@ -130,7 +223,7 @@ h1, h2 {
 }
 
 #todo-list li .delete-btn:hover {
-    background-color: #c82333;
+    background-color: var(--delete-hover-color);
 }
 
 /* Statistics styling */
@@ -153,7 +246,7 @@ h1, h2 {
 }
 
 .popup-content {
-    background-color: #fff;
+    background-color: var(--container-color);
     padding: 2rem;
     border-radius: 10px;
     text-align: center;
@@ -161,10 +254,11 @@ h1, h2 {
 
 .popup-content h2 {
     margin-top: 0;
+    color: var(--primary-color);
 }
 
 .popup-content button {
-    background-color: #ff6347;
+    background-color: var(--primary-color);
     color: #fff;
     border: none;
     padding: 0.8rem 1.5rem;
@@ -174,7 +268,7 @@ h1, h2 {
 }
 
 .popup-content button:hover {
-    background-color: #e5533d;
+    background-color: var(--primary-hover-color);
 }
 
 /* Responsive design */
@@ -183,12 +277,21 @@ h1, h2 {
         padding: 1rem;
     }
 
+    .header {
+        flex-direction: column;
+    }
+
+    h1 {
+        margin-bottom: 1rem;
+    }
+
     .timer-display {
         font-size: 3rem;
     }
 
     .timer-controls button {
         padding: 0.6rem 1rem;
+        margin: 0.2rem;
     }
 
     .settings {

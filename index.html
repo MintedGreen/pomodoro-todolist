@@ -6,15 +6,23 @@
     <title>Pomodoro Timer & To-do List</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="light-theme">
     <div class="container">
-        <h1>Pomodoro Timer & To-do List</h1>
+        <div class="header">
+            <h1>Pomodoro Timer & To-do List</h1>
+            <div class="theme-switcher">
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
         <div class="timer">
             <div class="timer-display">25:00</div>
             <div class="timer-controls">
-                <button id="start-btn">Start</button>
-                <button id="pause-btn">Pause</button>
+                <button id="toggle-btn">Start</button>
                 <button id="reset-btn">Reset</button>
+                <button id="skip-btn">Skip</button>
             </div>
         </div>
         <div class="settings">
@@ -44,6 +52,13 @@
             <button id="popup-close-btn">Close</button>
         </div>
     </div>
+
+    <!-- Audio elements for sound effects -->
+    <!-- Please replace '#' with the actual path to your audio files -->
+    <audio id="tick-sound" src="#"></audio>
+    <audio id="click-sound" src="#"></audio>
+    <audio id="notification-sound" src="#"></audio>
+
     <script src="script.js"></script>
 </body>
 </html>
